@@ -1,12 +1,10 @@
 package org.milmsearch.core.api
 import java.net.URI
 import java.net.URL
-
 import org.milmsearch.core.domain.MlArchiveType
 import org.milmsearch.core.domain.CreateMlProposalRequest
 import org.milmsearch.core.domain.MlProposalStatus
 import org.milmsearch.core.ComponentRegistry
-
 import javax.ws.rs.core.Response
 import javax.ws.rs.Consumes
 import javax.ws.rs.DELETE
@@ -16,6 +14,10 @@ import javax.ws.rs.PUT
 import javax.ws.rs.Path
 import net.liftweb.json.parse
 import net.liftweb.json.DefaultFormats
+import javax.ws.rs.PathParam
+import javax.ws.rs.core.Response.Status
+
+class BadRequestException extends Exception
 
 /**
  * ML登録申請情報のAPIリソース
@@ -42,19 +44,18 @@ class MlProposalResource {
    *   "comment": "コメント(MLの説明など)"
    * }
    * </pre>
-   * 
+   *
    * @param requestBody JSON形式のML登録申請情報
    * @return 201(Created)
    */
   @POST
   @Consumes(Array("application/json"))
   def create(requestBody: String) = {
-    val dto = parse(requestBody).extract[RequestDto]
+    val dto = parse(requestBody).extract[RequestDto] // リクエストbodyのパース、下記RequestDtoを参照
     val id = mpService.create(dto.toDomain)
 
     Response.created(
-      new URI("/ml-proposal/" + id)
-    ).build()
+      new URI("/ml-proposal/" + id)).build()
   }
 
   @GET
@@ -76,8 +77,24 @@ class MlProposalResource {
 
   @Path("{id}")
   @DELETE
-  def delete() = {
-    Response.serverError().build()
+  def delete(@PathParam("id") id: String): Response = { // 引数の指定が必要　SampleListResource.scalaを後で参照（cherry-pick後）
+
+    def stringToLong(str: String) =
+      try {
+        str.toLong
+      } catch {
+        case e: NumberFormatException => throw new BadRequestException
+      }
+
+    try {
+      if (mpService.delete(stringToLong(id)))
+        Response.noContent().build()
+      else
+        Response.status(Status.NOT_FOUND).build()
+    } catch {
+      case e: BadRequestException => Response.status(Status.BAD_REQUEST).build() // 400
+      case e => Response.serverError().build()
+    }
   }
 
   /**
@@ -90,8 +107,7 @@ class MlProposalResource {
     status: String,
     archiveType: String,
     archiveUrl: String,
-    comment: String
-  ) {
+    comment: String) {
 
     /**
      * ドメインオブジェクトに変換する
@@ -104,7 +120,6 @@ class MlProposalResource {
         MlProposalStatus.withName(status),
         Some(MlArchiveType.withName(archiveType)),
         Some(new URL(archiveUrl)),
-        Some(comment)
-      )
+        Some(comment))
   }
 }
