@@ -4,6 +4,7 @@ import org.milmsearch.core.domain.MlArchiveType
 import org.milmsearch.core.domain.MlProposal
 import org.milmsearch.core.domain.MlProposalStatus
 
+import mapper._
 import net.liftweb.mapper.CreatedUpdated
 import net.liftweb.mapper.IdPK
 import net.liftweb.mapper.LongKeyedMapper
@@ -26,7 +27,21 @@ trait MlProposalDao {
  */
 class MlProposalDaoImpl extends MlProposalDao {
   def find(id: Long) = None
-  def create(request: CreateMlProposalRequest) = 0L
+  def create(request: CreateMlProposalRequest) = toMapper(request).saveMe().id
+  
+  /**
+   * ML登録申請情報ドメインを Mapper オブジェクトに変換する
+   */
+  private def toMapper(request: CreateMlProposalRequest): MlProposalMapper = {
+    MlProposalMetaMapper.create
+      .proposerName(request.proposerName)
+      .proposerEmail(request.proposerEmail)
+      .mlTitle(request.mlTitle)
+      .status(request.status.toString)
+      .archiveType(request.archiveType map { _.toString } getOrElse null)
+      .archiveUrl(request.archiveUrl map { _.toString } getOrElse null)
+      .message(request.comment getOrElse null)
+  }
 }
 
 /**
@@ -56,8 +71,8 @@ package mapper {
     object proposerName extends MappedString(this, 200)
     object proposerEmail extends MappedEmail(this, 200)
     object mlTitle extends MappedString(this, 200)
-    object status extends MappedEnum(this, MlProposalStatus)
-    object archiveType extends MappedEnum(this, MlArchiveType)
+    object status extends MappedString(this, 200)
+    object archiveType extends MappedString(this, 200)
     object archiveUrl extends MappedText(this)
     object message extends MappedText(this)
   }
