@@ -33,5 +33,33 @@ class MlProposalServiceSuite extends FunSuite
       }
     }
   }
+  
+  test("delete_正常") { ////
+    // mockは戻り値なしで良い。戻り値がない場合のexpectの書き方は後ほど
+    val id = 1L
+    
+	val m = mock[MlProposalDao]
+    m expects 'delete withArgs(id) returning true
+    
+    expect(true) {
+      ComponentRegistry.mlProposalDao.doWith(m) {
+        new MlProposalServiceImpl().delete(id)
+      }
+    }
+  }
+  
+    test("delete_id該当なし") { ////
+    // mockは戻り値なしで良い。
+    val id = 1L
+    
+	val m = mock[MlProposalDao]
+    m expects 'delete withArgs(id) returning false
+    
+    expect(false) {
+      ComponentRegistry.mlProposalDao.doWith(m) {
+        new MlProposalServiceImpl().delete(id)
+      }
+    }
+  }
 
 }
