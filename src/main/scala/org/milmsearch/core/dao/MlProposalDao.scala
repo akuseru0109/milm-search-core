@@ -19,6 +19,7 @@ import net.liftweb.mapper.MappedText
 trait MlProposalDao {
   def find(id: Long): Option[MlProposal]
   def create(request: CreateMlProposalRequest): Long
+  def delete(id: Long): Boolean
 }
 
 /**
@@ -27,6 +28,7 @@ trait MlProposalDao {
 class MlProposalDaoImpl extends MlProposalDao {
   def find(id: Long) = None
   def create(request: CreateMlProposalRequest) = 0L
+  def delete(id: Long): Boolean = true
 }
 
 /**

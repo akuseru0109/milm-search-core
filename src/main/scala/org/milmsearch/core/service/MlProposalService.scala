@@ -71,6 +71,6 @@ class MlProposalServiceImpl extends MlProposalService {
 
   def update(id: Long, proposal: MlProposal) = false // TODO
 
-  def delete(id: Long) = mpDao.delete(id) //// 
+  def delete(id: Long): Boolean = mpDao.delete(id) //// 
 
 }
