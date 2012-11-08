@@ -12,6 +12,13 @@ import net.liftweb.mapper.MappedEmail
 import net.liftweb.mapper.MappedEnum
 import net.liftweb.mapper.MappedString
 import net.liftweb.mapper.MappedText
+import org.milmsearch.core.domain.MlProposalStatus
+import org.milmsearch.core.domain.MlArchiveType
+import org.milmsearch.core.domain.MlProposal
+import net.liftweb.common.Box
+import net.liftweb.common.Full
+import net.liftweb.common.Empty
+import net.liftweb.common.Failure
 
 /**
  * ML登録申請情報 の DAO
@@ -28,7 +35,14 @@ trait MlProposalDao {
 class MlProposalDaoImpl extends MlProposalDao {
   def find(id: Long) = None
   def create(request: CreateMlProposalRequest) = 0L
-  def delete(id: Long): Boolean = true
+  def delete(id: Long) = {
+    val result: Box[mapper.MlProposalMapper] = mapper.MlProposalMetaMapper.find(id)
+    result match {
+      case Full(row) => mapper.MlProposalMetaMapper.delete_!(row)
+      case Empty => false
+      case Failure(message, e, _) => throw e openOr new RuntimeException(message)
+    }
+  }
 }
 
 /**
