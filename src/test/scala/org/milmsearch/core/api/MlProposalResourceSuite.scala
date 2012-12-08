@@ -359,6 +359,17 @@ class MlProposalResourceSuite extends FunSuite
     expect(400) { response.getStatus() }
   }
 
+  test("list ページ番号に 'a' を指定した場合") {
+    val response = new MlProposalResource().list(
+      filterBy    = "status",
+      filterValue = "new",
+      startPage   = "a",
+      count       = "20",
+      sortBy      = "mlTitle",
+      sortOrder   = "ascending")
+    expect(400) { response.getStatus() }
+  }
+
   test("list 項目数に 0 を指定した場合") {
     val response = new MlProposalResource().list(
       filterBy    = "status",
@@ -376,6 +387,17 @@ class MlProposalResourceSuite extends FunSuite
       filterValue = "new",
       startPage   = "1",
       count       = "-1",
+      sortBy      = "mlTitle",
+      sortOrder   = "ascending")
+    expect(400) { response.getStatus() }
+  }
+
+  test("list 項目数に 'a' を指定した場合") {
+    val response = new MlProposalResource().list(
+      filterBy    = "status",
+      filterValue = "new",
+      startPage   = "1",
+      count       = "a",
       sortBy      = "mlTitle",
       sortOrder   = "ascending")
     expect(400) { response.getStatus() }
