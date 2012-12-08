@@ -19,7 +19,7 @@ trait MlProposalService {
 
   /**
    * ML登録申請情報を作成する
-   * 
+   *
    * @param mlProposal ML登録申請情報
    * @return ID
    */
@@ -27,27 +27,27 @@ trait MlProposalService {
 
   /**
    * 検索結果情報を取得する
-   * 
+   *
    * @param page   取得するページ番号と1ページあたりの件数
    * @param sort   ソート方法
-   * @return 検索結果情報 
+   * @return 検索結果情報
    */
-  def search(page: Page, sort: Sort[MlProposalSortBy.type]): MlProposalSearchResult 
-  
+  def search(page: Page, sort: Sort[MlProposalSortBy.type]): MlProposalSearchResult
+
   /**
    * 検索結果情報を取得する
-   * 
+   *
    * @param filter 絞り込み条件
    * @param page   取得するページ番号と1ページあたりの件数
    * @param sort   ソート方法
-   * @return 検索結果情報 
+   * @return 検索結果情報
    */
-  def search(filter: Filter[MlProposalFilterBy.type], page: Page, 
-      sort: Sort[MlProposalSortBy.type]): MlProposalSearchResult 
-  
+  def search(filter: Filter[MlProposalFilterBy.type], page: Page,
+      sort: Sort[MlProposalSortBy.type]): MlProposalSearchResult
+
   /**
    * ML登録申請情報を取得する
-   * 
+   *
    * @param id ID
    * @return ML登録申請情報
    */
@@ -55,7 +55,7 @@ trait MlProposalService {
 
   /**
    * ML登録申請情報を更新する
-   * 
+   *
    * @param id ID
    * @param mlProposal ML登録申請情報
    * @return 更新対象が存在したかどうか
@@ -65,7 +65,7 @@ trait MlProposalService {
 
   /**
    * ML登録申請情報を削除する
-   * 
+   *
    * @param id ID
    * @return 削除対象が存在したかどうか
    */
@@ -91,19 +91,14 @@ class MlProposalServiceImpl extends MlProposalService {
 
   def search(page: Page, sort: Sort[MlProposalSortBy.type]): MlProposalSearchResult = {
     val mlProposals = mpDao.findAll(page.toRange, sort)
-    val itemsPerPage = if (mlProposals.lengthCompare(page.count.toInt) < 0) 
-      mlProposals.length else page.count 
+    val itemsPerPage = mlProposals.length.toLong min page.count
     MlProposalSearchResult(mpDao.count(), page.toRange.offset + 1, itemsPerPage, mlProposals)
   }
 
   def search(filter: Filter[MlProposalFilterBy.type],
       page: Page, sort: Sort[MlProposalSortBy.type]): MlProposalSearchResult = {
-    if (filter.value == "") {
-      throw new SearchFailedException("Filter value is empty.")
-    }
     val mlProposals = mpDao.findAll(filter, page.toRange, sort)
-    val itemsPerPage = if (mlProposals.lengthCompare(page.count.toInt) < 0) 
-      mlProposals.length else page.count 
+    val itemsPerPage = mlProposals.length.toLong min page.count
     MlProposalSearchResult(mpDao.count(filter), page.toRange.offset + 1, itemsPerPage, mlProposals)
   }
 
