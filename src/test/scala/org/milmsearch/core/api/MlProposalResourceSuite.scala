@@ -438,8 +438,8 @@ class MlProposalResourceSuite extends FunSuite
       |"totalResults":0,
       |"startIndex":1,
       |"itemsPerPage":10,
-      |"mlProposals":[%s]
-      |}""".stripMargin format "" replaceAll ("\n", "")
+      |"mlProposals":[]
+      |}""".stripMargin replaceAll ("\n", "")
     ) { response.getEntity.toString }
   }
 
@@ -467,8 +467,8 @@ class MlProposalResourceSuite extends FunSuite
       |"totalResults":0,
       |"startIndex":1,
       |"itemsPerPage":10,
-      |"mlProposals":[%s]
-      |}""".stripMargin format "" replaceAll ("\n", "")
+      |"mlProposals":[]
+      |}""".stripMargin replaceAll ("\n", "")
     ) { response.getEntity.toString }
   }
 }
