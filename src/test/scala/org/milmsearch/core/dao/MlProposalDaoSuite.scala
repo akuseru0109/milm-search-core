@@ -24,39 +24,39 @@ import org.scalatest.BeforeAndAfter
 class MlProposalDaoSuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
   // TODO
   test("insert full") { pending }
-  
+
   /**
    * 全てのテストの前処理
    */
   override def beforeAll() {
     Schemifier.schemify(true, Schemifier.infoF _, MLPMMapper)
   }
-  
+
   after {
     DB.runUpdate("TRUNCATE TABLE ML_PROPOSAL", Nil)
   }
-  
+
   test("toBy status accepted") {
     expect(By(MLPMMapper.status, MlProposalStatus.Accepted)) {
       new MlProposalDaoImpl().toBy(Filter(MLPFilterBy.Status, MlProposalStatus.Accepted))
     }
   }
-  
+
   test("toOrderBy createdAt asc") {
     expect(OrderBy(MLPMMapper.createdAt, Ascending)) {
       new MlProposalDaoImpl().toOrderBy(Sort(MLPSortBy.CreatedAt, SortOrder.Ascending))
     }
   }
-  
+
   test("findAll") {
-    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)", 
-        List(1, "name1", "sample@sample.com", "title", 
+    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)",
+        List(1, "name1", "sample@sample.com", "title",
           1, 1, "http://sample.com", "message",
           "2012-10-10 10:10:11", "2012-10-11 10:10:11"
         )
     )
-    val mp = new MlProposalDaoImpl().findAll(Range(0, 10),
-        Sort(MLPSortBy.CreatedAt, SortOrder.Ascending)).head
+    val mp = new MlProposalDaoImpl().findAll(None, Range(0, 10),
+        Some(Sort(MLPSortBy.CreatedAt, SortOrder.Ascending))).head
     expect(1) {
       mp.id
     }
@@ -86,32 +86,32 @@ class MlProposalDaoSuite extends FunSuite with BeforeAndAfterAll with BeforeAndA
     }
     expect("2012-10-11T10:10:11") {
       DateFormatUtils.ISO_DATETIME_FORMAT.format(mp.updatedAt)
-    }    
+    }
   }
 
   test("findAll filter range sort") {
-    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)", 
-        List(1, "name1", "sample@sample.com", "title", 
+    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)",
+        List(1, "name1", "sample@sample.com", "title",
           1, 1, "http://sample.com", "message",
           "2012-10-10 15:10:11", "2012-10-11 10:10:11"
         )
     )
-    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)", 
-        List(2, "name2", "sample2@sample.com", "title2", 
+    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)",
+        List(2, "name2", "sample2@sample.com", "title2",
           2, 1, "http://sample.com2", "message2",
           "2012-10-10 11:10:11", "2012-10-11 10:10:11"
         )
     )
-    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)", 
-        List(3, "name3", "sample3@sample.com", "title3", 
+    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)",
+        List(3, "name3", "sample3@sample.com", "title3",
           2, 1, "http://sample.com3", "message3",
           "2012-10-10 12:10:11", "2012-10-11 10:10:11"
         )
     )
     val mps = new MlProposalDaoImpl().findAll(
-        Filter(MLPFilterBy.Status, MlProposalStatus.Rejected), 
+        Some(Filter(MLPFilterBy.Status, MlProposalStatus.Rejected)),
         Range(0, 10),
-        Sort(MLPSortBy.CreatedAt, SortOrder.Descending))
+        Some(Sort(MLPSortBy.CreatedAt, SortOrder.Descending)))
     // id でいうと 3, 2 の 2 件の結果になる
     expect(2) {
       mps.length
@@ -123,34 +123,34 @@ class MlProposalDaoSuite extends FunSuite with BeforeAndAfterAll with BeforeAndA
       mps.tail.head.id
     }
   }
-  
+
   test("findAll range") {
-    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)", 
-        List(1, "name1", "sample@sample.com", "title", 
+    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)",
+        List(1, "name1", "sample@sample.com", "title",
           1, 1, "http://sample.com", "message",
           "2012-10-10 10:10:11", "2012-10-11 10:10:11"
         )
     )
-    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)", 
-        List(2, "name2", "sample2@sample.com", "title2", 
+    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)",
+        List(2, "name2", "sample2@sample.com", "title2",
           2, 1, "http://sample.com2", "message2",
           "2012-10-10 10:10:11", "2012-10-11 10:10:11"
         )
     )
-    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)", 
-        List(3, "name3", "sample3@sample.com", "title3", 
+    DB.runUpdate("INSERT INTO ML_PROPOSAL VALUES(?,?,?,?,?,?,?,?,?,?)",
+        List(3, "name3", "sample3@sample.com", "title3",
           2, 1, "http://sample.com3", "message3",
           "2012-10-10 10:10:11", "2012-10-11 10:10:11"
         )
     )
     val mps = new MlProposalDaoImpl().findAll(
-        Range(1, 1),
-        Sort(MLPSortBy.CreatedAt, SortOrder.Ascending))
+        None, Range(1, 1),
+        Some(Sort(MLPSortBy.CreatedAt, SortOrder.Ascending)))
     expect(1) {
       mps.length
     }
     expect(2) {
       mps.head.id
     }
-  }  
+  }
 }
