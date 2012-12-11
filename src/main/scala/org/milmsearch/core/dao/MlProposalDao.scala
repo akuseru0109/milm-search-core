@@ -1,10 +1,13 @@
 package org.milmsearch.core.dao
+
+import mapper._
+
+import org.milmsearch.core.ComponentRegistry.{dateTimeService => Time}
 import org.milmsearch.core.domain.CreateMlProposalRequest
 import org.milmsearch.core.domain.MlArchiveType
 import org.milmsearch.core.domain.MlProposal
 import org.milmsearch.core.domain.MlProposalStatus
 
-import mapper._
 import net.liftweb.mapper.CreatedUpdated
 import net.liftweb.mapper.IdPK
 import net.liftweb.mapper.LongKeyedMapper
@@ -13,6 +16,7 @@ import net.liftweb.mapper.MappedEmail
 import net.liftweb.mapper.MappedEnum
 import net.liftweb.mapper.MappedString
 import net.liftweb.mapper.MappedText
+import net.liftweb.mapper.MappedDateTime
 
 /**
  * ML登録申請情報 の DAO
@@ -33,6 +37,7 @@ class MlProposalDaoImpl extends MlProposalDao {
    * ML登録申請情報ドメインを Mapper オブジェクトに変換する
    */
   private def toMapper(request: CreateMlProposalRequest): MlProposalMapper = {
+    val now = Time().now().toDate
     MlProposalMetaMapper.create
       .proposerName(request.proposerName)
       .proposerEmail(request.proposerEmail)
@@ -41,6 +46,8 @@ class MlProposalDaoImpl extends MlProposalDao {
       .archiveType(request.archiveType map { _.toString } getOrElse null)
       .archiveUrl(request.archiveUrl map { _.toString } getOrElse null)
       .message(request.comment getOrElse null)
+      .createdAt(now)
+      .updatedAt(now)
   }
 }
 
@@ -64,8 +71,8 @@ package mapper {
   /**
    * ML登録申請情報のモデルクラス
    */
-  private[dao] class MlProposalMapper extends LongKeyedMapper[MlProposalMapper]
-      with IdPK with CreatedUpdated {
+  private[dao] class MlProposalMapper extends
+      LongKeyedMapper[MlProposalMapper] with IdPK {
     def getSingleton = MlProposalMetaMapper
   
     object proposerName extends MappedString(this, 200)
@@ -75,6 +82,7 @@ package mapper {
     object archiveType extends MappedString(this, 200)
     object archiveUrl extends MappedText(this)
     object message extends MappedText(this)
+    object createdAt extends MappedDateTime(this)
+    object updatedAt extends MappedDateTime(this)
   }
-
 }
