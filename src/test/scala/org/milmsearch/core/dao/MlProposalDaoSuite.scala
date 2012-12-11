@@ -8,6 +8,4 @@ import org.milmsearch.core.Bootstrap
 import net.liftweb.util.Props
 
 class MlProposalDaoSuite extends FunSuite with BeforeAndAfterAll {
-  // TODO
-  test("insert full") { pending }
 }
