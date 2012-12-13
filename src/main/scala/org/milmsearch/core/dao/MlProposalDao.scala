@@ -76,7 +76,7 @@ class MlProposalDaoImpl extends MlProposalDao {
     if (filter.isDefined) MLPMMapper.count(toBy(filter.get))
     else MLPMMapper.count()
 
-  private def toDomain(mapper: org.milmsearch.core.dao.mapper.MlProposalMapper) =
+  private def toDomain(mapper: MLPMapper) =
     MlProposal(
       mapper.id.get,
       mapper.proposerName.get,
@@ -90,11 +90,11 @@ class MlProposalDaoImpl extends MlProposalDao {
       mapper.updatedAt.get)
 
   def toBy(filter: Filter[MLPFilterBy.type]) = filter match {
-      case Filter(MLPFilterBy.Status, v: MLPStatus.Value)
-        => By(MLPMMapper.status, v)
-      case _ => throw new NoSuchFieldException(
-        "Can't convert Filter to By")
-    }
+    case Filter(MLPFilterBy.Status, v: MLPStatus.Value) =>
+      By(MLPMMapper.status, v)
+    case _ => throw new NoSuchFieldException(
+      "Can't convert Filter to By")
+  }
 
   def toOrderBy(sort: Sort[MLPSortBy.type]) = {
     import MLPSortBy._
